@@ -1,4 +1,4 @@
-class Contacto {
+export default class Contacto {   //el export es para poder usarla en app.js
    #id;
    #nombre;
    #apellido;
@@ -9,9 +9,8 @@ class Contacto {
    #puestoTrabajo;
    #direccion;
    #notas; 
-
-   constructor(id, nombre, apellido, telefono, email, imagen, empresa, puestoTrabajo, direccion, notas) {
-    this.#id = id;
+   constructor(nombre, apellido, telefono, email, imagen, empresa, puestoTrabajo, direccion, notas) {
+    this.#id = crypto.randomUUID();  //genera identificador unico
     this.#nombre = nombre;
     this.#apellido = apellido;
     this.#telefono = telefono;
