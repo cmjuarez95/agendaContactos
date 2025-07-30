@@ -14,6 +14,8 @@ const inputImagen = document.getElementById("imagen")
 const inputEmpresa = document.getElementById("empresa")
 const inputPuestoTrabajo = document.getElementById("puestoTrabajo")
 
+const tbody = document.getElementById("tablaContactosBody")
+
 //Verificar si el localstorage tiene contactos
 
 const agenda = JSON.parse(localStorage.getItem("agendaKey")) || [];  // aqui se leen los datos salvo que sea null
@@ -45,6 +47,8 @@ const crearContacto = () =>{
 
     limpiarFormulario();
 
+    dibujarFila(contactoNuevo, agenda.length)
+
 }
 
 function limpiarFormulario() {
@@ -52,7 +56,55 @@ function limpiarFormulario() {
 }
 
 
+const cargarContactos = ()=>{
+    //verificar sin tengo contactos para cargar
+    if(agenda.length !== 0){
+       
+        agenda.map((itemContacto, indice)=>dibujarFila(itemContacto, indice+1))
 
+    }else{
+        //to do:dibujar un parrafo que diga si no tenemops contactos
+    }
+}
+
+
+const dibujarFila = (itemContacto, fila)=>{
+    tbody.innerHTML +=` 
+    <tr>
+                <th scope="row">${fila}</th>
+              
+                  <td>${itemContacto.nombre}</td>
+                <td>${itemContacto.apellido}</td>
+                <td>${itemContacto.telefono}</td>
+                <td>
+                  <img
+                    src="${itemContacto.imagen}"
+                    alt="${itemContacto.nombre}"
+                    class="img-thumbnail img-table"
+                  />
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-info btn-sm me-2 btn-ver-detalle"
+                  >
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-warning btn-sm me-2 btn-editar"
+                    data-bs-target="#contactoModal"
+                    data-bs-toggle="modal"
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button type="button" class="btn btn-danger btn-sm btn-borrar">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+    `
+}
 
 //manejadores de eventos
 btnAgregarContacto.addEventListener("click", ()=>{
@@ -66,3 +118,4 @@ formularioContacto.addEventListener("submit", (e)=>{
     crearContacto()
 })
 
+cargarContactos();
