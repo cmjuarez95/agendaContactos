@@ -130,6 +130,19 @@ window.borrarContacto = (id) =>{      //Debo usar window para crear la funcion s
   cancelButtonText:"Cancelar"
     }).then((result) => {
       if (result.isConfirmed) {
+        //Aqui agrego la logica para borrar
+        const indiceContacto = agenda.findIndex((contacto)=> contacto.id===id)
+        //con splice borramos el elemento de determinada posicion del array
+
+        agenda.splice(indiceContacto, 1)
+
+        //Actualizar el localStorage
+        guardarLocalstorage()
+
+
+        //Actualizar Tabla
+        tbody.children[indiceContacto].remove()
+        //actualizar el numero de filas del array
         Swal.fire({
           title: "Deleted!",
           text: "Your file has been deleted.",
