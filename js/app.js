@@ -98,7 +98,7 @@ const dibujarFila = (itemContacto, fila)=>{
                   >
                     <i class="bi bi-pencil"></i>
                   </button>
-                  <button type="button" class="btn btn-danger btn-sm btn-borrar">
+                  <button type="button" class="btn btn-danger btn-sm btn-borrar" onclick = "borrarContacto('${itemContacto.id}')">
                     <i class="bi bi-trash"></i>
                   </button>
                 </td>
@@ -117,5 +117,27 @@ formularioContacto.addEventListener("submit", (e)=>{
     //aqui tengo que crear/editar contacto
     crearContacto()
 })
+
+window.borrarContacto = (id) =>{      //Debo usar window para crear la funcion si no no puedo acceder al app desde el html usando innerHTML en dibujarFila
+  Swal.fire({
+  title: "Are you sure?",
+  text: "You won't be able to revert this!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Borrar",
+  cancelButtonText:"Cancelar"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your file has been deleted.",
+          icon: "success"
+        });
+      }
+    });
+  //console.log("desde borarContacto", id)
+}
 
 cargarContactos();
