@@ -16,6 +16,7 @@ const inputPuestoTrabajo = document.getElementById("puestoTrabajo")
 
 const tbody = document.getElementById("tablaContactosBody")
 
+let estoyCreando = true;
 //Verificar si el localstorage tiene contactos
 
 const agenda = JSON.parse(localStorage.getItem("agendaKey")) || [];  // aqui se leen los datos salvo que sea null
@@ -93,6 +94,7 @@ const dibujarFila = (itemContacto, fila)=>{
                   <button
                     type="button"
                     class="btn btn-warning btn-sm me-2 btn-editar"
+                    onclick = "prepararContacto('${itemContacto.id}')" 
                     data-bs-target="#contactoModal"
                     data-bs-toggle="modal"
                   >
@@ -108,15 +110,22 @@ const dibujarFila = (itemContacto, fila)=>{
 
 //manejadores de eventos
 btnAgregarContacto.addEventListener("click", ()=>{
-    modalFormularioContacto.show();
-
+  limpiarFormulario();
+  estoyCreando=true;
+  modalFormularioContacto.show();
 })
 
 formularioContacto.addEventListener("submit", (e)=>{
     e.preventDefault()
     //aqui tengo que crear/editar contacto
-    crearContacto()
-})
+    if (estoyCreando) {
+      crearContacto();
+    }else{
+      editarContacto();
+    }
+
+    
+});
 
 window.borrarContacto = (id) =>{      //Debo usar window para crear la funcion si no no puedo acceder al app desde el html usando innerHTML en dibujarFila
   Swal.fire({
@@ -151,6 +160,34 @@ window.borrarContacto = (id) =>{      //Debo usar window para crear la funcion s
       }
     });
   //console.log("desde borarContacto", id)
+}
+
+window.prepararContacto= (id) =>{
+  //Conseguir datos del contacto
+  const contactoBuscado = agenda.find((contacto)=> contacto.id ===id)
+
+  //mostrar los datos del contacto en el form
+  inputNombre.value = contactoBuscado.nombre;
+  inputApellido.value = contactoBuscado.apellido;
+  inputEmail.value = contactoBuscado.email;
+  inputDireccion.value = contactoBuscado.direccion;
+  inputEmpresa.value = contactoBuscado.empresa;
+  inputTelefono.value = contactoBuscado.telefono;
+  inputNotas.value = contactoBuscado.notas;
+  inputPuestoTrabajo.value = contactoBuscado.puestoTrabajo;
+
+  //cambio la variable que controla crear/editar
+  estoyCreando=false;
+
+
+  //Abrir modal
+  modalFormularioContacto.show()
+
+
+}
+
+const editarContacto = () =>{
+  console.log("desde editar contacto")
 }
 
 cargarContactos();
