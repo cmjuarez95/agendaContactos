@@ -13,10 +13,12 @@ const inputNotas = document.getElementById("notas")
 const inputImagen = document.getElementById("imagen")
 const inputEmpresa = document.getElementById("empresa")
 const inputPuestoTrabajo = document.getElementById("puestoTrabajo")
-
+const tituloModal = document.getElementById("contactoModalLabel")
 const tbody = document.getElementById("tablaContactosBody")
+const mensaje = document.getElementById("mensajeSinContactos");
 
 let estoyCreando = true;
+let idContacto = null;
 //Verificar si el localstorage tiene contactos
 
 const agenda = JSON.parse(localStorage.getItem("agendaKey")) || [];  // aqui se leen los datos salvo que sea null
@@ -32,8 +34,14 @@ const guardarLocalstorage = () => {    //guardar en memoria del navegador
 const crearContacto = () =>{
     console.log("aqui tengo q creear contacto")
     //todo agreagar validaciones
+     let imagenURL = inputImagen.value;
+
+      // Verificar si el campo está vacío
+      if (imagenURL.trim() === "") {
+        imagenURL = "https://static.vecteezy.com/system/resources/previews/047/305/447/non_2x/default-avatar-profile-icon-with-long-shadow-simple-user-sign-symbol-vector.jpg"; // o tu ruta local
+      }
     //buscar los datos del formulario
-    const contactoNuevo = new Contacto(inputNombre.value,inputApellido.value,inputTelefono.value,inputEmail.value,inputImagen.value,inputEmpresa.value,inputPuestoTrabajo.value,inputDireccion.value,inputNotas.value)
+    const contactoNuevo = new Contacto(inputNombre.value,inputApellido.value,inputTelefono.value,inputEmail.value,imagenURL,inputEmpresa.value,inputPuestoTrabajo.value,inputDireccion.value,inputNotas.value)
     agenda.push(contactoNuevo)
     console.log(contactoNuevo)
     //guardar la agenda en el localstorage
@@ -49,6 +57,16 @@ const crearContacto = () =>{
     limpiarFormulario();
 
     dibujarFila(contactoNuevo, agenda.length)
+    //verificar si tengo contactos para cargar
+    if(agenda.length !== 0){
+
+        mensaje.textContent = ""; // limpiar mensaje si hay contactos
+
+    }else{
+        //to do:dibujar un parrafo que diga si no tenemops contactos
+
+        mensaje.textContent = "No hay contactos cargados.";
+    }
 
 }
 
@@ -58,13 +76,20 @@ function limpiarFormulario() {
 
 
 const cargarContactos = ()=>{
-    //verificar sin tengo contactos para cargar
+
+
+
+    tbody.innerHTML = "";
+    //verificar si tengo contactos para cargar
     if(agenda.length !== 0){
-       
+
+        mensaje.textContent = ""; // limpiar mensaje si hay contactos
         agenda.map((itemContacto, indice)=>dibujarFila(itemContacto, indice+1))
 
     }else{
         //to do:dibujar un parrafo que diga si no tenemops contactos
+
+        mensaje.textContent = "No hay contactos cargados.";
     }
 }
 
@@ -112,6 +137,7 @@ const dibujarFila = (itemContacto, fila)=>{
 btnAgregarContacto.addEventListener("click", ()=>{
   limpiarFormulario();
   estoyCreando=true;
+  tituloModal.textContent= "Agregar contacto";
   modalFormularioContacto.show();
 })
 
@@ -148,9 +174,18 @@ window.borrarContacto = (id) =>{      //Debo usar window para crear la funcion s
         //Actualizar el localStorage
         guardarLocalstorage()
 
+        if(agenda.length !== 0){
 
+        mensaje.textContent = ""; // limpiar mensaje si hay contactos
+
+       }else{
+        //to do:dibujar un parrafo que diga si no tenemops contactos
+
+        mensaje.textContent = "No hay contactos cargados.";
+       }
         //Actualizar Tabla
-        tbody.children[indiceContacto].remove()
+       // tbody.children[indiceContacto].remove()
+       cargarContactos();
         //actualizar el numero de filas del array
         Swal.fire({
           title: "Deleted!",
@@ -160,6 +195,8 @@ window.borrarContacto = (id) =>{      //Debo usar window para crear la funcion s
       }
     });
   //console.log("desde borarContacto", id)
+  
+  
 }
 
 window.prepararContacto= (id) =>{
@@ -175,11 +212,11 @@ window.prepararContacto= (id) =>{
   inputTelefono.value = contactoBuscado.telefono;
   inputNotas.value = contactoBuscado.notas;
   inputPuestoTrabajo.value = contactoBuscado.puestoTrabajo;
-
+  idContacto=id;
   //cambio la variable que controla crear/editar
   estoyCreando=false;
 
-
+  tituloModal.textContent="Editar contacto";
   //Abrir modal
   modalFormularioContacto.show()
 
@@ -188,6 +225,42 @@ window.prepararContacto= (id) =>{
 
 const editarContacto = () =>{
   console.log("desde editar contacto")
+  //buscar en que posicion del array está el contacto
+  const indiceContacto= agenda.findIndex((contacto)=>contacto.id===idContacto)
+  //modificar el contacto
+  agenda[indiceContacto].nombre=inputNombre.value;
+  agenda[indiceContacto].apellido=inputApellido.value;
+  agenda[indiceContacto].telefono=inputTelefono.value;
+  agenda[indiceContacto].email=inputEmail.value;
+  agenda[indiceContacto].direccion=inputDireccion.value;
+  agenda[indiceContacto].puestoTrabajo=inputPuestoTrabajo.value;
+  agenda[indiceContacto].empresa=inputEmpresa.value;
+  agenda[indiceContacto].notas=inputNotas.value;
+
+  //reviso si hay imagen, si no pongo una por defecto
+  let imagenURL = inputImagen.value;
+  if (imagenURL.trim() === "") {
+    imagenURL = "https://static.vecteezy.com/system/resources/previews/047/305/447/non_2x/default-avatar-profile-icon-with-long-shadow-simple-user-sign-symbol-vector.jpg";
+  }
+
+  agenda[indiceContacto].imagen = imagenURL;
+  //Actualizar el localStorage
+  guardarLocalstorage()
+  cargarContactos()
+  //to do: Actualizar fila de la tabla
+  //dibujarFila(agenda[indiceContacto],indiceContacto+1)
+  //Cerrar Venatana modal
+  modalFormularioContacto.hide();
+
+  Swal.fire({
+  position: "center",
+  icon: "success",
+  title: "El contacto fue editado con éxito",
+  showConfirmButton: false,
+  timer: 1500
+  });
+
+  //to do: mostrar una ventana de sweet alert para indicar que el contacto fue creado
 }
 
 cargarContactos();
