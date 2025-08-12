@@ -1,4 +1,5 @@
 import Contacto from "./contacto.js";
+import { validarCantidadCaracteres, validarEmail } from "./validaciones.js";
 //elementos del DOM
 
 const btnAgregarContacto = document.getElementById("btnAgregarContacto");
@@ -17,6 +18,24 @@ const tituloModal = document.getElementById("contactoModalLabel")
 const tbody = document.getElementById("tablaContactosBody")
 const mensaje = document.getElementById("mensajeSinContactos");
 
+const tabla = document.querySelector(".table-responsive");
+const sectionDetalles = document.getElementById("seccionDetalleContacto");
+const seccionTablaContactos = document.getElementById("seccionTablaContactos");
+// Elementos para el detalle del contacto
+const detalleFoto = document.getElementById('detalleFoto');
+const detalleNombreApellido = document.getElementById('detalleNombreApellido');
+const detalleEmail = document.getElementById('detalleEmail');
+const detalleEmailInfo = document.getElementById('detalleEmailInfo');
+const detalleTelefono = document.getElementById('detalleTelefono');
+const detalleCompany = document.getElementById('detalleCompany');
+const detalleJobTitle = document.getElementById('detalleJobTitle');
+const detalleLocation = document.getElementById('detalleLocation');
+const detalleNotes = document.getElementById('detalleNotes');
+
+const breadCrumbContactName = document.getElementById('breadCrumbContactName');
+const breadCrumbContacts = document.getElementById('breadCrumbContacts');
+const btnVolverTabla = document.getElementById('btnVolverTabla');
+
 let estoyCreando = true;
 let idContacto = null;
 //Verificar si el localstorage tiene contactos
@@ -34,29 +53,37 @@ const guardarLocalstorage = () => {    //guardar en memoria del navegador
 const crearContacto = () =>{
     console.log("aqui tengo q creear contacto")
     //todo agreagar validaciones
-     let imagenURL = inputImagen.value;
+    if(validacion()){
+          let imagenURL = inputImagen.value;
 
-      // Verificar si el campo está vacío
-      if (imagenURL.trim() === "") {
-        imagenURL = "https://static.vecteezy.com/system/resources/previews/047/305/447/non_2x/default-avatar-profile-icon-with-long-shadow-simple-user-sign-symbol-vector.jpg"; // o tu ruta local
-      }
-    //buscar los datos del formulario
-    const contactoNuevo = new Contacto(inputNombre.value,inputApellido.value,inputTelefono.value,inputEmail.value,imagenURL,inputEmpresa.value,inputPuestoTrabajo.value,inputDireccion.value,inputNotas.value)
-    agenda.push(contactoNuevo)
-    console.log(contactoNuevo)
-    //guardar la agenda en el localstorage
-    guardarLocalstorage();
-    Swal.fire({
-        title: 'Contacto Creado con Éxito',
-        text: `El contacto ${inputNombre.value} fue creado correctamente`,
-        icon: 'success',
-        confirmButtonText: 'Ok'
-    })
-
-
+          // Verificar si el campo está vacío
+          if (imagenURL.trim() === "") {
+            imagenURL = "https://static.vecteezy.com/system/resources/previews/047/305/447/non_2x/default-avatar-profile-icon-with-long-shadow-simple-user-sign-symbol-vector.jpg"; // o tu ruta local
+          }
+        //buscar los datos del formulario
+        const contactoNuevo = new Contacto(inputNombre.value,inputApellido.value,inputTelefono.value,inputEmail.value,imagenURL,inputEmpresa.value,inputPuestoTrabajo.value,inputDireccion.value,inputNotas.value)
+        agenda.push(contactoNuevo)
+        console.log(contactoNuevo)
+        //guardar la agenda en el localstorage
+        guardarLocalstorage();
+        Swal.fire({
+            title: 'Contacto Creado con Éxito',
+            text: `El contacto ${inputNombre.value} fue creado correctamente`,
+            icon: 'success',
+            confirmButtonText: 'Ok'
+        })
+        
     limpiarFormulario();
 
     dibujarFila(contactoNuevo, agenda.length)
+    }else{
+      console.log("hay errores en la validacion")
+    }
+
+
+     
+
+
     //verificar si tengo contactos para cargar
     if(agenda.length !== 0){
 
@@ -113,6 +140,7 @@ const dibujarFila = (itemContacto, fila)=>{
                   <button
                     type="button"
                     class="btn btn-info btn-sm me-2 btn-ver-detalle"
+                    onclick="verDetalleContacto('${itemContacto.id}')"
                   >
                     <i class="bi bi-eye"></i>
                   </button>
@@ -223,6 +251,12 @@ window.prepararContacto= (id) =>{
 
 }
 
+window.verDetalleContacto = (id) => {
+  const contactoBuscado = agenda.find((contacto) => contacto.id === id);
+  seccionTablaContactos.classList.add("d-none");
+  sectionDetalles.classList.remove("d-none");
+}
+
 const editarContacto = () =>{
   console.log("desde editar contacto")
   //buscar en que posicion del array está el contacto
@@ -262,5 +296,31 @@ const editarContacto = () =>{
 
   //to do: mostrar una ventana de sweet alert para indicar que el contacto fue creado
 }
+
+const validacion = () => {
+  let datosvalidos = true
+  if (!validarCantidadCaracteres(inputNombre,2,50)){
+    datosvalidos=false
+  }
+  if (!validarCantidadCaracteres(inputApellido,2,50)){
+    datosvalidos=false
+  }
+  if (!validarEmail(inputEmail)) {
+    datosvalidos=false;
+  }
+
+  return datosvalidos
+}
+
+const mostrarTablaContactos = () => {
+    seccionTablaContactos.classList.remove('d-none');
+    sectionDetalles.classList.add('d-none');
+};
+
+btnVolverTabla.addEventListener('click', mostrarTablaContactos);
+breadCrumbContacts.addEventListener('click', (e) => {
+    e.preventDefault();
+    mostrarTablaContactos();
+});
 
 cargarContactos();
